@@ -431,17 +431,7 @@ export default class AutofillService implements AutofillServiceInterface {
     let totp: string | null = null;
 
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-    let canAccessPremium = false;
-    if (activeAccount?.id) {
-      canAccessPremium = await firstValueFrom(
-        this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeAccount.id),
-      );
-    }
     const defaultUriMatch = await this.getDefaultUriMatchStrategy();
-
-    if (!canAccessPremium) {
-      options.cipher.login.totp = undefined;
-    }
 
     let didAutofill = false;
     await Promise.all(
@@ -512,8 +502,7 @@ export default class AutofillService implements AutofillServiceInterface {
         if (
           options.cipher.type !== CipherType.Login ||
           totp !== null ||
-          !options.cipher.login.totp ||
-          (!canAccessPremium && !options.cipher.organizationUseTotp)
+          !options.cipher.login.totp
         ) {
           return;
         }

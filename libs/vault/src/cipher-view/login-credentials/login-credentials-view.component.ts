@@ -13,12 +13,9 @@ import {
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
-import { Observable, switchMap } from "rxjs";
+import { of } from "rxjs";
 
-import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -59,7 +56,6 @@ type TotpCodeValues = {
     BitTotpCountdownComponent,
     ReadOnlyCipherCardComponent,
     LinkModule,
-    PremiumBadgeComponent,
   ],
 })
 export class LoginCredentialsViewComponent implements OnChanges {
@@ -81,11 +77,7 @@ export class LoginCredentialsViewComponent implements OnChanges {
   @ViewChild("passwordInput")
   private passwordInput!: ElementRef<HTMLInputElement>;
 
-  isPremium$: Observable<boolean> = this.accountService.activeAccount$.pipe(
-    switchMap((account) =>
-      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-    ),
-  );
+  isPremium$ = of(true);
   showPasswordCount: boolean = false;
   passwordRevealed: boolean = false;
   totpCodeCopyObj: TotpCodeValues;
@@ -93,11 +85,9 @@ export class LoginCredentialsViewComponent implements OnChanges {
   private datePipe = inject(DatePipe);
 
   constructor(
-    private billingAccountProfileStateService: BillingAccountProfileStateService,
     private i18nService: I18nService,
     private premiumUpgradeService: PremiumUpgradePromptService,
     private eventCollectionService: EventCollectionService,
-    private accountService: AccountService,
   ) {}
 
   get fido2CredentialCreationDateValue(): string {
